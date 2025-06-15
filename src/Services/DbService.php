@@ -56,7 +56,7 @@ class DbService
         ];
     }
 
-    public function getDsnUrl(): string
+    private function getDsnUrl(): string
     {
         $dbDriver = DriverTypeEnum::SQLSRV->value;
         $dbHost = $this->parseDatabaseUrl()['host'];

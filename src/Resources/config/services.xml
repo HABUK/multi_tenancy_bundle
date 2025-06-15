@@ -11,7 +11,9 @@
         </service>
         <service id="Hakam\MultiTenancyBundle\Services\DbConfigService" alias="hakam_db_config.service"/>
 
-        <service id="Hakam\MultiTenancyBundle\Services\DbService" public="false" autowire="true"/>
+        <service id="Hakam\MultiTenancyBundle\Services\DbService" public="false" autowire="true" autoconfigure="true">
+            <argument key="$databaseURL">%env(resolve:DATABASE_URL)%</argument>
+        </service>
 
         <service id="Hakam\MultiTenancyBundle\EventListener\DbSwitchEventListener">
             <tag name="kernel.event_listener" event="Hakam\MultiTenancyBundle\Event\SwitchDbEvent"/>

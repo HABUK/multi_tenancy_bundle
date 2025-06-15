@@ -7,4 +7,5 @@ enum DriverTypeEnum: string
     case MYSQL = 'mysql';
     case POSTGRES = 'postgresql';
     case SQLITE = 'sqlite';
+    case SQLSRV = 'sqlsrv';
 }

@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Hakam\MultiTenancyBundle\Doctrine\ORM\TenantEntityManager;
 use Hakam\MultiTenancyBundle\Enum\DatabaseStatusEnum;
+use Hakam\MultiTenancyBundle\Enum\DriverTypeEnum;
 use Hakam\MultiTenancyBundle\Event\SwitchDbEvent;
 use Hakam\MultiTenancyBundle\Exception\MultiTenancyException;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -28,7 +29,8 @@ class DbService
         #[Autowire('%hakam.tenant_db_list_entity%')]
         private readonly string                   $tenantDbListEntity,
         #[Autowire('%hakam.tenant_db_credentials%')]
-        private array                             $dbCredentials
+        private array                             $dbCredentials,
+        private string                            $databaseURL,
     )
     {
     }
@@ -41,6 +43,29 @@ class DbService
      * @throws Exception If the database already exists or cannot be created.
      * @throws MultiTenancyException If the database already exists or cannot be created.
      */
+
+    private function parseDatabaseUrl(): array
+    {
+        $url = parse_url($this->databaseURL);
+        return [
+            'dbname' => substr($url['path'], 1),
+            'user' => $url['user'],
+            'password' => $url['pass'],
+            'host' => $url['host'],
+            'port' => $url['port'],
+        ];
+    }
+
+    public function getDsnUrl(): string
+    {
+        $dbDriver = DriverTypeEnum::SQLSRV->value;
+        $dbHost = $this->parseDatabaseUrl()['host'];
+        $dbPort = $this->parseDatabaseUrl()['port'];
+        $dbUsername = $this->parseDatabaseUrl()['user'];
+        $dbPassword = $this->parseDatabaseUrl()['password'];
+
+        return sprintf('%s://%s:%s@%s:%s', $dbDriver, $dbUsername, $dbPassword, $dbHost, $dbPort);
+    }
     public function createDatabase(TenantDbConfigurationInterface $dbConfiguration): int
     {
         $dsnParser = new DsnParser([
@@ -48,7 +73,7 @@ class DbService
             'postgresql' => 'pdo_pgsql',
             'sqlsrv' => 'sqlsrv'
             ]);
-        $tenantConnection = DriverManager::getConnection($dsnParser->parse($dbConfiguration->getDsnUrl()));
+        $tenantConnection = DriverManager::getConnection($dsnParser->parse($this->getDsnUrl()));
         try {
             $schemaManager = method_exists($tenantConnection, 'createSchemaManager')
                 ? $tenantConnection->createSchemaManager()

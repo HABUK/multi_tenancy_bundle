@@ -12,11 +12,11 @@ use Hakam\MultiTenancyBundle\Enum\DriverTypeEnum;
  */
 trait TenantDbConfigTrait
 {
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     protected string $dbName;
 
-    #[ORM\Column(type: 'string', length: 255, enumType: DriverTypeEnum::class, options: ["default" => DriverTypeEnum::MYSQL])]
-    private DriverTypeEnum $driverType = DriverTypeEnum::MYSQL;
+    #[ORM\Column(type: 'string', length: 255, enumType: DriverTypeEnum::class, options: ["default" => DriverTypeEnum::SQLSRV])]
+    private DriverTypeEnum $driverType = DriverTypeEnum::SQLSRV;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true, options: ["default" => null])]
     protected ?string $dbUserName = null;
@@ -154,10 +154,10 @@ trait TenantDbConfigTrait
 
     public function getDsnUrl(): string
     {
-        $dbDriver = $this->getDriverType()->value ?: DriverTypeEnum::MYSQL->value;
+        $dbDriver = $this->getDriverType()->value ?: DriverTypeEnum::SQLSRV->value;
         $dbHost = $this->getDbHost() ?: '127.0.0.1';
-        $dbPort = $this->getDbPort() ?: '3306';
-        $dbUsername = $this->getDbUsername();
+        $dbPort = $this->getDbPort() ?: '1433';
+        $dbUsername = $this->getDbUsername() ?: 'sa';
         $dbPassword = $this->getDbPassword() ? ':' . $this->getDbPassword() : '';
 
         return sprintf('%s://%s%s@%s:%s', $dbDriver, $dbUsername, $dbPassword, $dbHost, $dbPort);

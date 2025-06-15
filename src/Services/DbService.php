@@ -46,6 +46,7 @@ class DbService
         $dsnParser = new DsnParser([
             'mysql' => 'pdo_mysql',
             'postgresql' => 'pdo_pgsql',
+            'sqlsrv' => 'sqlsrv'
             ]);
         $tenantConnection = DriverManager::getConnection($dsnParser->parse($dbConfiguration->getDsnUrl()));
         try {

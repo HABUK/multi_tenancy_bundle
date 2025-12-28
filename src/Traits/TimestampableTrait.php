@@ -2,7 +2,6 @@
 
 namespace Hakam\MultiTenancyBundle\Traits;
 
-use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -12,17 +11,17 @@ use Doctrine\ORM\Mapping as ORM;
  */
 trait TimestampableTrait
 {
-    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     protected ?DateTimeInterface $createdAt = null;
 
-    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     protected ?DateTimeInterface $updatedAt = null;
 
     #[ORM\PrePersist]
     public function onPrePersist(): void
     {
-        $this->createdAt = new DateTimeImmutable();
-        $this->updatedAt = new DateTimeImmutable();
+        $this->createdAt = new \DateTime();
+        $this->updatedAt = new \DateTime();
     }
 
     #[ORM\PreUpdate]
